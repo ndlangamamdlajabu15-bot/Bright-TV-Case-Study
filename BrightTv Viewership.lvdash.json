@@ -1,0 +1,789 @@
+{
+  "datasets": [
+    {
+      "name": "22366717",
+      "displayName": "Untitled dataset",
+      "queryLines": [
+        "with user_profiles as (\n",
+        "select UserID,\n",
+        "        Name, surname, email,\n",
+        "case \n",
+        "  when gender = ' ' OR gender = 'None' \n",
+        "  then 'other' \n",
+        "  else gender \n",
+        "end as gender,\n",
+        "case\n",
+        "  when race = ' ' OR race = 'None'\n",
+        "  then 'other' \n",
+        "  else race \n",
+        "end as race,\n",
+        "case \n",
+        "  when province = ' ' OR province = 'None'\n",
+        "  then 'uncategorized' \n",
+        "  else province\n",
+        "end as province,\n",
+        "age,\n",
+        "  CASE\n",
+        "        WHEN Age BETWEEN 0 AND 17 THEN 'Kids'\n",
+        "        WHEN Age BETWEEN 18 AND 24 THEN 'Teenagers'\n",
+        "        WHEN Age BETWEEN 25 AND 35 THEN 'Youth'\n",
+        "        WHEN Age BETWEEN 36 AND 55 THEN 'Adults'\n",
+        "        WHEN Age BETWEEN 56 AND 114 THEN 'Pensioners'\n",
+        "        ELSE 'Uncategorized'\n",
+        "    END AS Age_Group\n",
+        "from workspace.`bright-tv`.user_profiles),\n",
+        "viewership_cte AS (\n",
+        "  SELECT UserID0,\n",
+        "    Channel2,\n",
+        "    RecordDate2,\n",
+        "    `Duration 2`,\n",
+        "\n",
+        "    DATE_FORMAT(RecordDate2, 'yyyy-dd-MM') AS watch_date,\n",
+        "    MONTHNAME(RecordDate2) AS month_name,\n",
+        "    DAYNAME(RecordDate2) AS day_name,\n",
+        "    DAY(RecordDate2) AS day_of_month,\n",
+        "    HOUR(RecordDate2) AS hour_of_day,\n",
+        "    DATE_FORMAT(RecordDate2, 'HH:mm:ss') AS watch_time,\n",
+        "    DATE_FORMAT(`Duration 2`, 'HH:mm:ss') AS duration_time,\n",
+        "\n",
+        "    CASE\n",
+        "        WHEN DAYOFWEEK(RecordDate2) IN (1,7) THEN 'Weekend'\n",
+        "        ELSE 'Weekday'\n",
+        "    END AS day_classification,\n",
+        "\n",
+        "    CASE\n",
+        "        WHEN HOUR(RecordDate2) BETWEEN 0 AND 5 THEN 'Late Night'\n",
+        "        WHEN HOUR(RecordDate2) BETWEEN 6 AND 11 THEN 'Morning'\n",
+        "        WHEN HOUR(RecordDate2) BETWEEN 12 AND 16 THEN 'Afternoon'\n",
+        "        WHEN HOUR(RecordDate2) BETWEEN 17 AND 20 THEN 'Evening'\n",
+        "        ELSE 'Prime Time Night'\n",
+        "    END AS viewing_period\n",
+        "\n",
+        "FROM workspace.`bright-tv`.viewership\n",
+        ")\n",
+        "SELECT \n",
+        "    COALESCE(A.UserID0, B.UserID) AS UserID,\n",
+        "    A.Channel2,\n",
+        "    A.RecordDate2,\n",
+        "    A.`Duration 2`,\n",
+        "    A.watch_date,\n",
+        "    A.month_name,\n",
+        "    A.day_name,\n",
+        "    A.day_of_month,\n",
+        "    A.hour_of_day,\n",
+        "    A.watch_time,\n",
+        "    A.duration_time,\n",
+        "    A.day_classification,\n",
+        "    A.viewing_period,\n",
+        "    B.Name,\n",
+        "    B.surname,\n",
+        "    B.email,\n",
+        "    B.gender,\n",
+        "    B.race,\n",
+        "    B.province,\n",
+        "    B.age,\n",
+        "    B.Age_Group\n",
+        "FROM viewership_cte AS A\n",
+        "LEFT JOIN user_profiles AS B\n",
+        "ON A.UserID0 = B.UserID;"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "2889e1a0",
+      "displayName": "BrightTv Visualisation1",
+      "layout": [
+        {
+          "widget": {
+            "name": "12549d64",
+            "queries": [
+              {
+                "name": "fb7c7ac17528411aa6ec491e6e09e937",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "race",
+                      "expression": "`race`"
+                    },
+                    {
+                      "name": "column_d0bc18ca166",
+                      "expression": "COUNT(`UserID`)"
+                    },
+                    {
+                      "name": "day_classification",
+                      "expression": "`day_classification`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Viwership in  week per gender",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"series\":{\"column\":\"day_classification\",\"id\":\"column_d0bc18ca168\"},\"x\":{\"column\":\"race\",\"id\":\"column_d0bc18ca164\"},\"y\":[{\"column\":\"UserID\",\"id\":\"column_d0bc18ca166\",\"transform\":\"COUNT\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_d0bc18ca166\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":false,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"type\":\"-\"}}",
+                "query_name": "fb7c7ac17528411aa6ec491e6e09e937"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "ebc312ef",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "countdistinct(gender)",
+                      "expression": "COUNT(DISTINCT `gender`)"
+                    },
+                    {
+                      "name": "gender",
+                      "expression": "`gender`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Viewership by gender",
+                "showTitle": true,
+                "showDescription": false
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "countdistinct(gender)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "axis": {
+                    "hideTitle": true
+                  }
+                },
+                "color": {
+                  "fieldName": "gender",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "9c88478a",
+            "queries": [
+              {
+                "name": "fb7c7ac17528411aa6ec491e6e09e937",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "Age_Group",
+                      "expression": "`Age_Group`"
+                    },
+                    {
+                      "name": "column_d0bc18ca113",
+                      "expression": "SUM(`UserID`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Viewership by age group",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"Age_Group\",\"id\":\"column_d0bc18ca110\"},\"y\":[{\"column\":\"UserID\",\"id\":\"column_d0bc18ca113\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_d0bc18ca113\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":false,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"type\":\"-\"}}",
+                "query_name": "fb7c7ac17528411aa6ec491e6e09e937"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "1bce5b98",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    },
+                    {
+                      "name": "race",
+                      "expression": "`race`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "mark": {
+                "layout": "stack"
+              },
+              "frame": {
+                "title": "Viewrship by race",
+                "showTitle": true
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "count(*)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "axis": {
+                    "hideTitle": true
+                  }
+                },
+                "color": {
+                  "fieldName": "race",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "7105f4d2",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "month_name",
+                      "expression": "`month_name`"
+                    },
+                    {
+                      "name": "sum(UserID)",
+                      "expression": "SUM(`UserID`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Viewership per month",
+                "showTitle": true
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ],
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "month_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(UserID)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "c12e714a",
+            "queries": [
+              {
+                "name": "fb7c7ac17528411aa6ec491e6e09e937",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "province",
+                      "expression": "`province`"
+                    },
+                    {
+                      "name": "column_d0bc18ca125",
+                      "expression": "SUM(`UserID`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Viewership by province",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"province\",\"id\":\"column_d0bc18ca123\"},\"y\":[{\"column\":\"UserID\",\"id\":\"column_d0bc18ca125\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"reverseX\":false,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_d0bc18ca125\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":false,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"type\":\"category\"}}",
+                "query_name": "fb7c7ac17528411aa6ec491e6e09e937"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 12,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "80f0eb8a",
+            "queries": [
+              {
+                "name": "fb7c7ac17528411aa6ec491e6e09e937",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "day_name",
+                      "expression": "`day_name`"
+                    },
+                    {
+                      "name": "column_d0bc18ca135",
+                      "expression": "SUM(`UserID`)"
+                    },
+                    {
+                      "name": "gender",
+                      "expression": "`gender`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Days viwership by gender",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":\"stack\"},\"coefficient\":1,\"yAxis\":[{\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"series\":{\"column\":\"gender\",\"id\":\"column_d0bc18ca131\"},\"x\":{\"column\":\"day_name\",\"id\":\"column_d0bc18ca133\"},\"y\":[{\"column\":\"UserID\",\"id\":\"column_d0bc18ca135\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_d0bc18ca135\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":false,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"type\":\"-\"}}",
+                "query_name": "fb7c7ac17528411aa6ec491e6e09e937"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "ab39e0de",
+            "queries": [
+              {
+                "name": "fb7c7ac17528411aa6ec491e6e09e937",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "viewing_period",
+                      "expression": "`viewing_period`"
+                    },
+                    {
+                      "name": "column_d0bc18ca140",
+                      "expression": "SUM(`UserID`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "period of day viewership",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"viewing_period\",\"id\":\"column_d0bc18ca138\"},\"y\":[{\"column\":\"UserID\",\"id\":\"column_d0bc18ca140\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_d0bc18ca140\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":false,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"type\":\"-\"}}",
+                "query_name": "fb7c7ac17528411aa6ec491e6e09e937"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 18,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "f4edb1a2",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    },
+                    {
+                      "name": "day_classification",
+                      "expression": "`day_classification`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "mark": {
+                "layout": "stack"
+              },
+              "frame": {
+                "title": "Day classification viewrship",
+                "showTitle": true
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "count(*)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "day_classification",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "extra": [
+                  {
+                    "fieldName": "count(*)",
+                    "format": {
+                      "type": "number-plain",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 2
+                      }
+                    }
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 24,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "0ff78f08",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "Channel2",
+                      "expression": "`Channel2`"
+                    },
+                    {
+                      "name": "sum(UserID)",
+                      "expression": "SUM(`UserID`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Viewership per channel",
+                "showTitle": true,
+                "showDescription": true
+              },
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Channel2",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(UserID)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 24,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "f68a9761",
+            "queries": [
+              {
+                "name": "fb7c7ac17528411aa6ec491e6e09e937",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "day_name",
+                      "expression": "`day_name`"
+                    },
+                    {
+                      "name": "column_d0bc18ca153",
+                      "expression": "COUNT(`UserID`)"
+                    },
+                    {
+                      "name": "Age_Group",
+                      "expression": "`Age_Group`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Daily viewership per age group",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"series\":{\"column\":\"Age_Group\",\"id\":\"column_d0bc18ca151\"},\"x\":{\"column\":\"day_name\",\"id\":\"column_d0bc18ca150\"},\"y\":[{\"column\":\"UserID\",\"id\":\"column_d0bc18ca153\",\"transform\":\"COUNT\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"line\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_d0bc18ca153\":{\"type\":\"line\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":false,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"type\":\"-\"}}",
+                "query_name": "fb7c7ac17528411aa6ec491e6e09e937"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 30,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "800a6ecc",
+            "queries": [
+              {
+                "name": "fb7c7ac17528411aa6ec491e6e09e937",
+                "query": {
+                  "datasetName": "22366717",
+                  "fields": [
+                    {
+                      "name": "viewing_period",
+                      "expression": "`viewing_period`"
+                    },
+                    {
+                      "name": "column_d0bc18ca158",
+                      "expression": "COUNT(`UserID`)"
+                    },
+                    {
+                      "name": "gender",
+                      "expression": "`gender`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "viewership period per gender",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"series\":{\"column\":\"gender\",\"id\":\"column_d0bc18ca160\"},\"x\":{\"column\":\"viewing_period\",\"id\":\"column_d0bc18ca163\"},\"y\":[{\"column\":\"UserID\",\"id\":\"column_d0bc18ca158\",\"transform\":\"COUNT\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_d0bc18ca158\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":false,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"type\":\"-\"}}",
+                "query_name": "fb7c7ac17528411aa6ec491e6e09e937"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 30,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "locale": "en-US",
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#FFFFFF",
+        "dark": "#000000"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FFFFFF",
+        "dark": "#000000"
+      },
+      "widgetBorderColor": {
+        "light": "#000000",
+        "dark": "#00FF00"
+      },
+      "fontColor": {
+        "light": "#000000",
+        "dark": "#00FF00"
+      },
+      "selectionColor": {
+        "light": "#FF00FF",
+        "dark": "#FFFFFF"
+      },
+      "visualizationColors": [
+        "#EE7733",
+        "#0077BB",
+        "#33BBEE",
+        "#EE3377",
+        "#CC3311",
+        "#009988",
+        "#BBBBBB"
+      ],
+      "widgetHeaderAlignment": "LEFT"
+    },
+    "applyModeEnabled": false
+  }
+}
